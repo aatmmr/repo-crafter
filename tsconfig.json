@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "incremental": true,
+    "target": "es2022",
+    "module": "Node16",
+    "declaration": true,
+    "sourceMap": true,
+    "outDir": "./lib",
+
+    /* Strict Type-Checking Options */
+    "strict": true,
+
+    /* Additional Checks */
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+
+    "moduleResolution": "Node16",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+
+    /* Workaround  for error "import { NoticeMessage } from 'pg-protocol/dist/messages';"*/
+    "skipLibCheck": true,
+  },
+  "include": ["src/"],
+  "compileOnSave": false
+}
