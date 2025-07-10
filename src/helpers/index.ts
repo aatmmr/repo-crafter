@@ -6,6 +6,9 @@ export * from './types.js';
 // Validation functions
 export * from './validation.js';
 
+// Authentication functions
+export * from './auth.js';
+
 // GitHub App functions
 export * from './github-app.js';
 

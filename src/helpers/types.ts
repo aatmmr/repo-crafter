@@ -8,6 +8,7 @@ export interface RepositoryRequest {
     visibility?: 'public' | 'private' | 'internal';
     [key: string]: any;
   };
+  headers?: { [key: string]: string };
 }
 
 export interface Response {

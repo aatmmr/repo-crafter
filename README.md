@@ -1,16 +1,56 @@
 # repo-crafter
 
-> A GitHub App built with [Probot](https://github.com/probot/probot) that A probot app that creates repositories upon request
+> A GitHub App built with [Probot](https://github.com/probot/probot) that creates repositories upon request with API key authentication
 
-## Setup
+## Features
+
+- 🏗️ **Repository Creation**: Create repositories in GitHub organizations via API
+- 🔒 **API Key Authentication**: Secure access with configurable authentication
+- 👥 **Admin Assignment**: Automatically assign users as repository admins
+- 🔍 **Validation**: Comprehensive validation for organization membership and repository availability
+- 📊 **Structured Responses**: Consistent error codes and response formats
+- ⚙️ **Configurable Visibility**: Support for public, private, and internal repositories
+
+## Quick Start
 
 ```sh
 # Install dependencies
 npm install
 
+# Set up authentication (optional for development)
+export REPO_CRAFTER_API_KEY="your-secret-api-key-here"
+export REPO_CRAFTER_REQUIRE_AUTH=true
+
 # Run the bot
 npm start
 ```
+
+## API Usage
+
+### Create Repository
+```bash
+curl -X POST http://localhost:3000/repo-crafter/create-repository \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: your-secret-api-key-here" \
+  -d '{
+    "organization": "my-org",
+    "repositoryName": "new-repo",
+    "repositoryAdmin": "username",
+    "visibility": "private"
+  }'
+```
+
+## Configuration
+
+### Environment Variables
+- `REPO_CRAFTER_API_KEY` - API key for authentication (required in production)
+- `REPO_CRAFTER_REQUIRE_AUTH` - Enable/disable authentication (default: true)
+
+### Authentication
+See [AUTH_SETUP.md](AUTH_SETUP.md) for detailed authentication setup and usage.
+
+### API Documentation
+See [API_USAGE.md](API_USAGE.md) for complete API documentation.
 
 ## Docker
 
