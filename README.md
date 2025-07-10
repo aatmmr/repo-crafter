@@ -7,7 +7,8 @@
 - 🏗️ **Repository Creation**: Create repositories in GitHub organizations via API
 - 🔒 **API Key Authentication**: Secure access with configurable authentication
 - 👥 **Admin Assignment**: Automatically assign users as repository admins
-- 🔍 **Validation**: Comprehensive validation for organization membership and repository availability
+- � **Setup Issue Creation**: Automatically creates an issue with best practices and setup checklist
+- �🔍 **Validation**: Comprehensive validation for organization membership and repository availability
 - 📊 **Structured Responses**: Consistent error codes and response formats
 - ⚙️ **Configurable Visibility**: Support for public, private, and internal repositories
 
@@ -45,6 +46,7 @@ curl -X POST http://localhost:3000/repo-crafter/create-repository \
 ### Environment Variables
 - `REPO_CRAFTER_API_KEY` - API key for authentication (required in production)
 - `REPO_CRAFTER_REQUIRE_AUTH` - Enable/disable authentication (default: true)
+- `REPO_CRAFTER_CREATE_SETUP_ISSUE` - Enable/disable automatic setup issue creation (default: true)
 
 ### Authentication
 See [AUTH_SETUP.md](AUTH_SETUP.md) for detailed authentication setup and usage.

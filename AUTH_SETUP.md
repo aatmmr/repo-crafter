@@ -6,7 +6,7 @@ The repo-crafter API now supports simple API key authentication for secure acces
 
 ### Environment Variables
 
-Set these environment variables to configure authentication:
+Set these environment variables to configure authentication and features:
 
 ```bash
 # Required: Your secret API key
@@ -14,6 +14,9 @@ REPO_CRAFTER_API_KEY=your-super-secret-api-key-here
 
 # Optional: Disable authentication for development (default is true)
 REPO_CRAFTER_REQUIRE_AUTH=false
+
+# Optional: Disable automatic setup issue creation (default is true)
+REPO_CRAFTER_CREATE_SETUP_ISSUE=false
 ```
 
 ### Default Behavior

@@ -7,7 +7,8 @@ import {
   validateOrganizationMembership, 
   validateRepositoryAvailability, 
   createRepositoryParams, 
-  addRepositoryAdmin 
+  addRepositoryAdmin,
+  createInitialIssue
 } from './helpers/repository.js';
 import { createSuccessResponse, createErrorResponse } from './helpers/responses.js';
 
@@ -18,6 +19,7 @@ export default (app: Probot, { getRouter }: { getRouter: (prefix: string) => any
   // Configuration - API key from environment variable
   const API_KEY = process.env.REPO_CRAFTER_API_KEY || "your-secret-api-key-here";
   const REQUIRE_AUTH = process.env.REPO_CRAFTER_REQUIRE_AUTH !== 'false'; // Default to true
+  const CREATE_SETUP_ISSUE = process.env.REPO_CRAFTER_CREATE_SETUP_ISSUE !== 'false'; // Default to true
 
   // Add JSON body parsing middleware
   router.use((req: any, _res: any, next: any) => {
@@ -112,6 +114,11 @@ export default (app: Probot, { getRouter }: { getRouter: (prefix: string) => any
       // Add repository admin as collaborator if specified
       if (repositoryAdmin) {
         await addRepositoryAdmin(octokit, orgName, repoName, repositoryAdmin, fullName, app.log);
+      }
+
+      // Create initial issue with setup guide and best practices
+      if (CREATE_SETUP_ISSUE) {
+        await createInitialIssue(octokit, orgName, repoName, repositoryAdmin, app.log);
       }
 
       const successResponse = createSuccessResponse(fullName, repoName, orgName, htmlUrl, repositoryAdmin, visibility);

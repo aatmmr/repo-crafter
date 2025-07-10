@@ -1,6 +1,8 @@
 // Repository-related operations and validations
 
 import { ApiError } from './types.js';
+import * as fs from 'fs';
+import * as path from 'path';
 
 /**
  * Validates that a user is a member of the specified organization
@@ -130,5 +132,102 @@ export async function addRepositoryAdmin(
   } catch (collaboratorError: any) {
     logger.warn(`Failed to add ${repositoryAdmin} as admin: ${collaboratorError.message}`);
     // Continue execution - repository was created successfully
+  }
+}
+
+/**
+ * Loads and renders the setup issue template
+ */
+function loadIssueTemplate(templateData: {
+  organization: string;
+  repositoryName: string;
+  repositoryAdmin?: string;
+  adminMention?: string;
+}): string {
+  try {
+    const templatePath = path.join(process.cwd(), 'src', 'templates', 'setup-issue.md');
+    let templateContent = fs.readFileSync(templatePath, 'utf8');
+    
+    // Simple template rendering - replace placeholders
+    templateContent = templateContent
+      .replace(/\{\{organization\}\}/g, templateData.organization)
+      .replace(/\{\{repositoryName\}\}/g, templateData.repositoryName);
+    
+    // Handle conditional sections for repositoryAdmin
+    if (templateData.repositoryAdmin && templateData.adminMention) {
+      templateContent = templateContent
+        .replace(/\{\{#repositoryAdmin\}\}(.*?)\{\{\/repositoryAdmin\}\}/gs, '$1')
+        .replace(/\{\{adminMention\}\}/g, templateData.adminMention)
+        .replace(/\{\{\^repositoryAdmin\}\}(.*?)\{\{\/repositoryAdmin\}\}/gs, '');
+    } else {
+      templateContent = templateContent
+        .replace(/\{\{#repositoryAdmin\}\}(.*?)\{\{\/repositoryAdmin\}\}/gs, '')
+        .replace(/\{\{\^repositoryAdmin\}\}(.*?)\{\{\/repositoryAdmin\}\}/gs, '$1');
+    }
+    
+    return templateContent;
+  } catch (error: any) {
+    // Fallback to a basic template if file loading fails
+    return `# Welcome to ${templateData.organization}/${templateData.repositoryName}!
+
+This repository has been created successfully via the repo-crafter API${templateData.repositoryAdmin ? ` and ${templateData.adminMention} has been assigned as the repository administrator` : ''}.
+
+## 📋 Repository Setup Checklist
+
+- [ ] Review and update the repository description
+- [ ] Set up branch protection rules
+- [ ] Configure repository settings (Issues, Projects, Wiki, etc.)
+- [ ] Add repository topics/tags for discoverability
+- [ ] Set up automated workflows (if needed)
+
+## 🚀 Next Steps
+
+${templateData.repositoryAdmin ? `${templateData.adminMention}, as the repository administrator, please:` : 'Please:'}
+
+1. **Review Repository Settings** - Configure according to your team's needs
+2. **Set Up Branch Protection** - Implement the security policies above
+3. **Add Team Members** - Invite collaborators with appropriate permissions
+4. **Create Initial Documentation** - Add README, CONTRIBUTING, and other docs
+5. **Configure Integrations** - Set up any required webhooks or external services
+
+---
+*This issue was created automatically by repo-crafter. You can close it once you've completed the setup checklist.*`;
+  }
+}
+
+/**
+ * Creates an initial issue in the newly created repository with best practices
+ */
+export async function createInitialIssue(
+  octokit: any,
+  organization: string,
+  repositoryName: string,
+  repositoryAdmin?: string,
+  logger?: any
+): Promise<void> {
+  try {
+    const adminMention = repositoryAdmin ? `@${repositoryAdmin}` : 'the repository admin';
+    
+    const issueTitle = "🎉 Repository Created Successfully - Getting Started Guide";
+    
+    const issueBody = loadIssueTemplate({
+      organization,
+      repositoryName,
+      repositoryAdmin,
+      adminMention
+    });
+
+    await octokit.issues.create({
+      owner: organization,
+      repo: repositoryName,
+      title: issueTitle,
+      body: issueBody,
+      labels: ['documentation', 'good first issue', 'setup']
+    });
+
+    logger?.info(`Created initial setup issue in ${organization}/${repositoryName}${repositoryAdmin ? ` mentioning ${repositoryAdmin}` : ''}`);
+  } catch (error: any) {
+    logger?.warn(`Failed to create initial issue in ${organization}/${repositoryName}: ${error.message}`);
+    // Don't throw error - repository creation was successful, issue creation is bonus
   }
 }

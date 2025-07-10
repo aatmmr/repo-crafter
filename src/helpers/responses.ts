@@ -13,9 +13,12 @@ export function createSuccessResponse(
   repositoryAdmin?: string,
   visibility: string = 'private'
 ): ApiSuccess {
+  const adminMessage = repositoryAdmin ? ` with ${repositoryAdmin} as admin` : '';
+  const issueMessage = ' A setup issue with best practices has been created automatically.';
+  
   return {
     success: true,
-    message: `Repository ${fullName} created successfully${repositoryAdmin ? ` with ${repositoryAdmin} as admin` : ''}`,
+    message: `Repository ${fullName} created successfully${adminMessage}.${issueMessage}`,
     timestamp: new Date().toISOString(),
     repository: {
       name: repositoryName,
