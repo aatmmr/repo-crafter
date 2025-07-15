@@ -10,12 +10,12 @@ output "web_app_name" {
 
 output "resource_group_name" {
   description = "Name of the resource group"
-  value       = azurerm_resource_group.repo_crafter.name
+  value       = local.resource_group_name
 }
 
 output "resource_group_location" {
   description = "Location of the resource group"
-  value       = azurerm_resource_group.repo_crafter.location
+  value       = local.resource_group_location
 }
 
 output "app_service_plan_name" {
