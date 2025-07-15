@@ -37,6 +37,21 @@ jobs:
           fi
           echo "✅ Destruction confirmed for environment: ${{ github.event.inputs.environment }}"
 
+      - name: Check Environment Exists
+        run: |
+          echo "🔍 Checking if Azure environment exists..."
+          
+          ENV_VAR_NAME=""
+          case "${{ github.event.inputs.environment }}" in
+            "prod") ENV_VAR_NAME="AZURE_ENV_PROD_CREATED" ;;
+            "staging") ENV_VAR_NAME="AZURE_ENV_STAGING_CREATED" ;;
+            "dev") ENV_VAR_NAME="AZURE_ENV_DEV_CREATED" ;;
+          esac
+          
+          # Note: This check is informational - we'll proceed with destruction anyway
+          echo "Environment variable to check: ${ENV_VAR_NAME}"
+          echo "🚨 Proceeding with destruction of environment: ${{ github.event.inputs.environment }}"
+
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -75,10 +90,44 @@ jobs:
           echo "✅ Resources destroyed successfully"
         working-directory: ./terraform
 
+      - name: Destroy Azure Infrastructure
+        run: |
+          echo "🚨 DESTROYING base Azure infrastructure for environment: ${{ github.event.inputs.environment }}"
+          
+          # Delete App Service Plan
+          az appservice plan delete \
+            --name "asp-repo-crafter-${{ github.event.inputs.environment }}" \
+            --resource-group "rg-repo-crafter-${{ github.event.inputs.environment }}" \
+            --yes || echo "App Service Plan may not exist or already deleted"
+          
+          # Delete Resource Group (this will delete everything inside)
+          az group delete \
+            --name "rg-repo-crafter-${{ github.event.inputs.environment }}" \
+            --yes || echo "Resource Group may not exist or already deleted"
+          
+          echo "✅ Base Azure infrastructure destroyed successfully"
+
+      - name: Clean Up Repository Variables
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ENV_UPPER: ${{ github.event.inputs.environment == 'prod' && 'PROD' || github.event.inputs.environment == 'staging' && 'STAGING' || 'DEV' }}
+        run: |
+          echo "🧹 Cleaning up repository variables..."
+          
+          # Remove environment variables
+          gh variable delete "AZURE_ENV_${ENV_UPPER}_CREATED" || echo "Variable may not exist"
+          gh variable delete "AZURE_RG_${ENV_UPPER}" || echo "Variable may not exist"
+          gh variable delete "AZURE_ASP_${ENV_UPPER}" || echo "Variable may not exist"
+          
+          echo "✅ Repository variables cleaned up"
+
       - name: Post-destruction cleanup
         run: |
           echo "🧹 Cleaning up Terraform state and plan files"
           rm -f terraform.tfstate*
           rm -f destroy-plan
-          echo "✅ Cleanup completed"
+          echo "✅ Local cleanup completed"
+          echo ""
+          echo "🎉 Environment '${{ github.event.inputs.environment }}' has been completely destroyed!"
+          echo "   You can recreate it using the 'Create Azure Environment' workflow."
         working-directory: ./terraform

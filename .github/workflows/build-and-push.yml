@@ -85,6 +85,21 @@ jobs:
     environment: production
     
     steps:
+      - name: Check Environment Readiness
+        run: |
+          echo "🔍 Checking if Azure environment is ready for deployment..."
+          
+          if [ "${{ vars.AZURE_ENV_PROD_CREATED }}" != "true" ]; then
+            echo "❌ Azure environment 'prod' is not ready!"
+            echo "   Please run the 'Create Azure Environment' workflow first."
+            echo "   This will create the required Azure infrastructure."
+            exit 1
+          fi
+          
+          echo "✅ Azure environment 'prod' is ready for deployment"
+          echo "   Resource Group: ${{ vars.AZURE_RG_PROD }}"
+          echo "   App Service Plan: ${{ vars.AZURE_ASP_PROD }}"
+
       - name: Checkout code
         uses: actions/checkout@v4
 

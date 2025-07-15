@@ -1,0 +1,101 @@
+name: Create Azure Environment
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to create (dev, staging, prod)'
+        required: true
+        default: 'prod'
+        type: choice
+        options:
+          - dev
+          - staging
+          - prod
+      confirm_create:
+        description: 'Type "CREATE" to confirm environment creation'
+        required: true
+        type: string
+
+concurrency:
+  group: create-azure-${{ github.event.inputs.environment }}
+  cancel-in-progress: false
+
+jobs:
+  create-environment:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    environment: ${{ github.event.inputs.environment }}
+    
+    steps:
+      - name: Validate creation confirmation
+        run: |
+          if [ "${{ github.event.inputs.confirm_create }}" != "CREATE" ]; then
+            echo "❌ Creation not confirmed. You must type 'CREATE' exactly."
+            exit 1
+          fi
+          echo "✅ Creation confirmed for environment: ${{ github.event.inputs.environment }}"
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Create Azure Infrastructure
+        run: |
+          echo "🏗️ Creating Azure infrastructure for environment: ${{ github.event.inputs.environment }}"
+          
+          # Create resource group
+          az group create \
+            --name "rg-repo-crafter-${{ github.event.inputs.environment }}" \
+            --location "Germany West Central" \
+            --tags "Environment=${{ github.event.inputs.environment }}" "Project=repo-crafter" "ManagedBy=github-actions"
+          
+          # Create App Service Plan
+          az appservice plan create \
+            --name "asp-repo-crafter-${{ github.event.inputs.environment }}" \
+            --resource-group "rg-repo-crafter-${{ github.event.inputs.environment }}" \
+            --location "Germany West Central" \
+            --is-linux \
+            --sku B1 \
+            --tags "Environment=${{ github.event.inputs.environment }}" "Project=repo-crafter" "ManagedBy=github-actions"
+          
+          echo "✅ Azure infrastructure created successfully!"
+
+      - name: Set Environment Variables
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ENV_UPPER: ${{ github.event.inputs.environment == 'prod' && 'PROD' || github.event.inputs.environment == 'staging' && 'STAGING' || 'DEV' }}
+        run: |
+          echo "📝 Setting repository variables to track environment state..."
+          
+          # Set environment as created
+          gh variable set "AZURE_ENV_${ENV_UPPER}_CREATED" --body "true"
+          
+          # Set resource group name
+          gh variable set "AZURE_RG_${ENV_UPPER}" --body "rg-repo-crafter-${{ github.event.inputs.environment }}"
+          
+          # Set app service plan name
+          gh variable set "AZURE_ASP_${ENV_UPPER}" --body "asp-repo-crafter-${{ github.event.inputs.environment }}"
+          
+          echo "✅ Repository variables set successfully!"
+          echo ""
+          echo "🎉 Environment '${{ github.event.inputs.environment }}' is ready for deployment!"
+          echo "   You can now use the build-and-push workflow to deploy applications."
+
+      - name: Output Environment Info
+        run: |
+          echo "📋 Environment Information:"
+          echo "   Environment: ${{ github.event.inputs.environment }}"
+          echo "   Resource Group: rg-repo-crafter-${{ github.event.inputs.environment }}"
+          echo "   App Service Plan: asp-repo-crafter-${{ github.event.inputs.environment }}"
+          echo "   Location: Germany West Central"
+          echo ""
+          echo "🔗 Next steps:"
+          echo "   1. The environment is now ready for application deployment"
+          echo "   2. Use the 'Build and Push Container' workflow to deploy your app"
+          echo "   3. The app will be deployed to the created infrastructure"
