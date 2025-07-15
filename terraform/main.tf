@@ -22,23 +22,11 @@ resource "random_string" "suffix" {
   upper   = false
 }
 
-# Resource Group
-resource "azurerm_resource_group" "repo_crafter" {
-  name     = "rg-repo-crafter-${var.environment}"
-  location = var.location
-  
-  tags = {
-    Environment = var.environment
-    Project     = "repo-crafter"
-    ManagedBy   = var.azure_owner
-  }
-}
-
 # App Service Plan
 resource "azurerm_service_plan" "repo_crafter" {
   name                = "asp-repo-crafter-${var.environment}"
-  resource_group_name = azurerm_resource_group.repo_crafter.name
-  location           = azurerm_resource_group.repo_crafter.location
+  resource_group_name = local.resource_group_name
+  location           = local.resource_group_location
   
   os_type  = "Linux"
   sku_name = var.app_service_sku
@@ -53,8 +41,8 @@ resource "azurerm_service_plan" "repo_crafter" {
 # Azure Web App (Container)
 resource "azurerm_linux_web_app" "repo_crafter" {
   name                = "app-repo-crafter-${var.environment}-${random_string.suffix.result}"
-  resource_group_name = azurerm_resource_group.repo_crafter.name
-  location           = azurerm_resource_group.repo_crafter.location
+  resource_group_name = local.resource_group_name
+  location           = local.resource_group_location
   service_plan_id    = azurerm_service_plan.repo_crafter.id
   
   site_config {
