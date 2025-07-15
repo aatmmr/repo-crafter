@@ -130,6 +130,6 @@ data "azurerm_service_plan" "existing" {
 locals {
   resource_group_name = var.use_existing_rg ? data.azurerm_resource_group.existing[0].name : azurerm_resource_group.repo_crafter[0].name
   resource_group_location = var.use_existing_rg ? data.azurerm_resource_group.existing[0].location : azurerm_resource_group.repo_crafter[0].location
-  app_service_plan_id   = var.use_existing_rg ? data.azurerm_service_plan.existing[0].id : azurerm_service_plan.repo_crafter[0].id
-  app_service_plan_name = var.use_existing_rg ? data.azurerm_service_plan.existing[0].name : azurerm_service_plan.repo_crafter[0].name
+  app_service_plan_id   = var.use_existing_rg ? data.azurerm_service_plan.existing[0].id : azurerm_service_plan.repo_crafter.id
+  app_service_plan_name = var.use_existing_rg ? data.azurerm_service_plan.existing[0].name : azurerm_service_plan.repo_crafter.name
 }
