@@ -54,10 +54,26 @@ jobs:
         run: terraform init
         working-directory: ./terraform
 
+      - name: Terraform Refresh
+        run: |
+          terraform refresh \
+            -var="environment=${{ github.event.inputs.environment }}" \
+            -var="use_existing_rg=true" \
+            -var="container_tag=latest" \
+            -var="github_app_id=${{ secrets.REPOCRAFTER_APP_ID }}" \
+            -var="github_private_key=${{ secrets.REPOCRAFTER_PRIVATE_KEY }}" \
+            -var="github_webhook_secret=${{ secrets.REPOCRAFTER_WEBHOOK_SECRET }}" \
+            -var="github_client_id=${{ secrets.REPOCRAFTER_CLIENT_ID }}" \
+            -var="github_client_secret=${{ secrets.REPOCRAFTER_CLIENT_SECRET }}" \
+            -var="repo_crafter_api_key=${{ secrets.REPO_CRAFTER_API_KEY }}"
+        working-directory: ./terraform
+        continue-on-error: true
+
       - name: Terraform Plan Destroy
         run: |
           terraform plan -destroy \
             -var="environment=${{ github.event.inputs.environment }}" \
+            -var="use_existing_rg=true" \
             -var="container_tag=latest" \
             -var="github_app_id=${{ secrets.REPOCRAFTER_APP_ID }}" \
             -var="github_private_key=${{ secrets.REPOCRAFTER_PRIVATE_KEY }}" \
