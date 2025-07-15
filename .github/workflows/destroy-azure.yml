@@ -1,0 +1,80 @@
+name: Destroy Azure Resources
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to destroy (dev, staging, prod)'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - staging
+          - prod
+      confirm_destroy:
+        description: 'Type "DESTROY" to confirm resource deletion'
+        required: true
+        type: string
+
+jobs:
+  destroy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    environment: ${{ github.event.inputs.environment }}
+    
+    steps:
+      - name: Validate destruction confirmation
+        run: |
+          if [ "${{ github.event.inputs.confirm_destroy }}" != "DESTROY" ]; then
+            echo "❌ Destruction not confirmed. You must type 'DESTROY' exactly."
+            exit 1
+          fi
+          echo "✅ Destruction confirmed for environment: ${{ github.event.inputs.environment }}"
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ~1.0
+
+      - name: Terraform Init
+        run: terraform init
+        working-directory: ./terraform
+
+      - name: Terraform Plan Destroy
+        run: |
+          terraform plan -destroy \
+            -var="environment=${{ github.event.inputs.environment }}" \
+            -var="container_tag=latest" \
+            -var="github_app_id=${{ secrets.GITHUB_APP_ID }}" \
+            -var="github_private_key=${{ secrets.GITHUB_PRIVATE_KEY }}" \
+            -var="github_webhook_secret=${{ secrets.GITHUB_WEBHOOK_SECRET }}" \
+            -var="github_client_id=${{ secrets.GITHUB_CLIENT_ID }}" \
+            -var="github_client_secret=${{ secrets.GITHUB_CLIENT_SECRET }}" \
+            -var="repo_crafter_api_key=${{ secrets.REPO_CRAFTER_API_KEY }}" \
+            -out=destroy-plan
+        working-directory: ./terraform
+
+      - name: Terraform Destroy
+        run: |
+          echo "🚨 DESTROYING Azure resources for environment: ${{ github.event.inputs.environment }}"
+          terraform apply -auto-approve destroy-plan
+          echo "✅ Resources destroyed successfully"
+        working-directory: ./terraform
+
+      - name: Post-destruction cleanup
+        run: |
+          echo "🧹 Cleaning up Terraform state and plan files"
+          rm -f terraform.tfstate*
+          rm -f destroy-plan
+          echo "✅ Cleanup completed"
+        working-directory: ./terraform

@@ -31,7 +31,7 @@ jobs:
       - name: Run tests
         run: npm test
 
-  docker:
+  containerize:
     needs: build
     runs-on: ubuntu-latest
     permissions:
@@ -72,3 +72,50 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  deploy:
+    needs: containerize
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    environment: production
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ~1.0
+
+      - name: Terraform Init
+        run: terraform init
+        working-directory: ./terraform
+
+      - name: Terraform Plan
+        run: |
+          terraform plan \
+            -var="environment=prod" \
+            -var="container_tag=main-${{ github.sha }}" \
+            -var="github_app_id=${{ secrets.GITHUB_APP_ID }}" \
+            -var="github_private_key=${{ secrets.GITHUB_PRIVATE_KEY }}" \
+            -var="github_webhook_secret=${{ secrets.GITHUB_WEBHOOK_SECRET }}" \
+            -var="github_client_id=${{ secrets.GITHUB_CLIENT_ID }}" \
+            -var="github_client_secret=${{ secrets.GITHUB_CLIENT_SECRET }}" \
+            -var="repo_crafter_api_key=${{ secrets.REPO_CRAFTER_API_KEY }}" \
+            -out=tfplan
+        working-directory: ./terraform
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve tfplan
+        working-directory: ./terraform
+
+      - name: Output Web App URL
+        run: terraform output web_app_url
+        working-directory: ./terraform
