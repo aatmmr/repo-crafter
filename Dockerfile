@@ -35,23 +35,30 @@ RUN npm ci --only=production && \
 # Copy built application from builder stage
 COPY --from=builder /usr/src/app/lib ./lib
 
+# Copy templates directory (needed for setup issues)
+COPY src/templates ./src/templates
+
 # Copy other necessary files
 COPY app.yml ./
+COPY .infra/start.sh ./
+
+# Make start script executable
+RUN chmod +x start.sh
 
 # Set environment variables
 ENV NODE_ENV=production
-ENV PORT=80
+ENV PORT=3000
 
 # Change ownership to non-root user
 RUN chown -R probot:nodejs /usr/src/app
 USER probot
 
 # Expose the port
-EXPOSE 80
+EXPOSE 3000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:80/probot', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })" || exit 1
+  CMD node -e "require('http').get('http://localhost:3000/probot', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })" || exit 1
 
 # Start the application
-CMD ["npm", "start"]
+CMD ["./start.sh"]
