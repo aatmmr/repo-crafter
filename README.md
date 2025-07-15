@@ -100,6 +100,10 @@ export REPO_CRAFTER_REQUIRE_AUTH=false
 
 ## Configuration
 
+### GitHub App (Probot)
+
+Details on the creation of the GitHub App can be found in [docs/GITHUB_APP_SETUP.md](docs/GITHUB_APP_SETUP.md).
+
 ### Environment Variables
 
 **Required:**

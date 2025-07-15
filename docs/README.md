@@ -6,6 +6,7 @@ This directory contains technical documentation for the repo-crafter application
 
 - `API_USAGE.md` - Complete API endpoint documentation and examples
 - `AUTH_SETUP.md` - API key authentication setup and configuration
+- `GITHUB_APP_SETUP.md` - Step-by-step GitHub App creation and secrets guide
 - `HELPERS.md` - Helper modules documentation and usage guide
 - `TERRAFORM.md` - Azure deployment infrastructure documentation
 
