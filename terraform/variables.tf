@@ -126,21 +126,6 @@ data "azurerm_service_plan" "existing" {
   resource_group_name = local.resource_group_name
 }
 
-# Create App Service Plan only if not using existing one
-resource "azurerm_service_plan" "repo_crafter" {
-  count               = var.use_existing_rg ? 0 : 1
-  name                = "asp-repo-crafter-${var.environment}"
-  resource_group_name = local.resource_group_name
-  location            = local.resource_group_location
-  os_type             = "Linux"
-  sku_name            = var.app_service_sku
-  tags = {
-    Environment = var.environment
-    Project     = "repo-crafter"
-    ManagedBy   = var.azure_owner
-  }
-}
-
 # Local values to reference the correct resource group
 locals {
   resource_group_name = var.use_existing_rg ? data.azurerm_resource_group.existing[0].name : azurerm_resource_group.repo_crafter[0].name
