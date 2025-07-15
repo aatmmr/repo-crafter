@@ -102,22 +102,6 @@ jobs:
         run: terraform init
         working-directory: ./terraform
 
-      - name: Import Existing Resources
-        run: |
-          # Check if resource group exists and import if needed
-          ENVIRONMENT="prod"
-          RG_NAME="rg-repo-crafter-${ENVIRONMENT}"
-          SUBSCRIPTION_ID="5d9a229f-3bb4-46fb-9995-4d0625c98a34"
-          
-          # Check if resource exists in Azure
-          if az group show --name "$RG_NAME" --subscription "$SUBSCRIPTION_ID" >/dev/null 2>&1; then
-            echo "Resource group $RG_NAME exists, attempting import..."
-            terraform import azurerm_resource_group.repo_crafter "/subscriptions/$SUBSCRIPTION_ID/resourceGroups/$RG_NAME" || echo "Resource already imported or import failed"
-          else
-            echo "Resource group $RG_NAME does not exist, will be created by Terraform"
-          fi
-        working-directory: ./terraform
-
       - name: Terraform Plan
         run: |
           terraform plan \
