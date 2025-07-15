@@ -22,22 +22,6 @@ resource "random_string" "suffix" {
   upper   = false
 }
 
-# App Service Plan
-resource "azurerm_service_plan" "repo_crafter" {
-  name                = "asp-repo-crafter-${var.environment}"
-  resource_group_name = local.resource_group_name
-  location           = local.resource_group_location
-  
-  os_type  = "Linux"
-  sku_name = var.app_service_sku
-  
-  tags = {
-    Environment = var.environment
-    Project     = "repo-crafter"
-    ManagedBy   = var.azure_owner
-  }
-}
-
 # Azure Web App (Container)
 resource "azurerm_linux_web_app" "repo_crafter" {
   name                = "app-repo-crafter-${var.environment}-${random_string.suffix.result}"

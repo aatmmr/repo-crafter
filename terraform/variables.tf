@@ -83,53 +83,21 @@ variable "repo_crafter_api_key" {
   sensitive   = true
 }
 
-# Variable to control whether to use existing resource group
-variable "use_existing_rg" {
-  description = "Whether to use an existing resource group"
-  type        = bool
-  default     = true
-}
-
 # Data source for existing resource group
-data "azurerm_resource_group" "existing" {
-  count = var.use_existing_rg ? 1 : 0
-  name  = "rg-repo-crafter-${var.environment}"
-}
-
-# Create resource group only if not using existing one
-resource "azurerm_resource_group" "repo_crafter" {
-  count    = var.use_existing_rg ? 0 : 1
-  name     = "rg-repo-crafter-${var.environment}"
-  location = var.location
-  
-  lifecycle {
-    prevent_destroy = true
-    ignore_changes = [
-      tags["CreatedDate"],
-      tags["LastModified"]
-    ]
-  }
-  
-  tags = {
-    Environment = var.environment
-    Project     = "repo-crafter"
-    ManagedBy   = var.azure_owner
-  }
+data "azurerm_resource_group" "repo_crafter" {
+  name = "rg-repo-crafter-${var.environment}"
 }
 
 # Data source for existing App Service Plan
-# Only used if resource group is existing
-
-data "azurerm_service_plan" "existing" {
-  count               = var.use_existing_rg ? 1 : 0
+data "azurerm_service_plan" "repo_crafter" {
   name                = "asp-repo-crafter-${var.environment}"
-  resource_group_name = local.resource_group_name
+  resource_group_name = data.azurerm_resource_group.repo_crafter.name
 }
 
-# Local values to reference the correct resource group
+# Local values to reference the existing resources
 locals {
-  resource_group_name = var.use_existing_rg ? data.azurerm_resource_group.existing[0].name : azurerm_resource_group.repo_crafter[0].name
-  resource_group_location = var.use_existing_rg ? data.azurerm_resource_group.existing[0].location : azurerm_resource_group.repo_crafter[0].location
-  app_service_plan_id   = var.use_existing_rg ? data.azurerm_service_plan.existing[0].id : azurerm_service_plan.repo_crafter.id
-  app_service_plan_name = var.use_existing_rg ? data.azurerm_service_plan.existing[0].name : azurerm_service_plan.repo_crafter.name
+  resource_group_name     = data.azurerm_resource_group.repo_crafter.name
+  resource_group_location = data.azurerm_resource_group.repo_crafter.location
+  app_service_plan_id     = data.azurerm_service_plan.repo_crafter.id
+  app_service_plan_name   = data.azurerm_service_plan.repo_crafter.name
 }
