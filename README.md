@@ -128,11 +128,11 @@ For automated deployment, configure these secrets in your repository settings:
 - `AZURE_CREDENTIALS` - Azure service principal JSON for authentication
 
 ### GitHub App Configuration
-- `GITHUB_APP_ID` - Your GitHub App ID
-- `GITHUB_PRIVATE_KEY` - GitHub App private key (PEM format)
-- `GITHUB_WEBHOOK_SECRET` - Webhook verification secret
-- `GITHUB_CLIENT_ID` - GitHub App client ID
-- `GITHUB_CLIENT_SECRET` - GitHub App client secret
+- `REPOCRAFTER_APP_ID` - Your GitHub App ID
+- `REPOCRAFTER_PRIVATE_KEY` - GitHub App private key (PEM format)
+- `REPOCRAFTER_WEBHOOK_SECRET` - Webhook verification secret
+- `REPOCRAFTER_CLIENT_ID` - GitHub App client ID
+- `REPOCRAFTER_CLIENT_SECRET` - GitHub App client secret
 
 ### Application Settings
 - `REPO_CRAFTER_API_KEY` - API key for repository creation endpoints

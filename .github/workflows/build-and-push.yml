@@ -107,11 +107,11 @@ jobs:
           terraform plan \
             -var="environment=prod" \
             -var="container_tag=main-${{ github.sha }}" \
-            -var="github_app_id=${{ secrets.GITHUB_APP_ID }}" \
-            -var="github_private_key=${{ secrets.GITHUB_PRIVATE_KEY }}" \
-            -var="github_webhook_secret=${{ secrets.GITHUB_WEBHOOK_SECRET }}" \
-            -var="github_client_id=${{ secrets.GITHUB_CLIENT_ID }}" \
-            -var="github_client_secret=${{ secrets.GITHUB_CLIENT_SECRET }}" \
+            -var="github_app_id=${{ secrets.REPOCRAFTER_APP_ID }}" \
+            -var="github_private_key=${{ secrets.REPOCRAFTER_PRIVATE_KEY }}" \
+            -var="github_webhook_secret=${{ secrets.REPOCRAFTER_WEBHOOK_SECRET }}" \
+            -var="github_client_id=${{ secrets.REPOCRAFTER_CLIENT_ID }}" \
+            -var="github_client_secret=${{ secrets.REPOCRAFTER_CLIENT_SECRET }}" \
             -var="repo_crafter_api_key=${{ secrets.REPO_CRAFTER_API_KEY }}" \
             -out=tfplan
         working-directory: ./terraform

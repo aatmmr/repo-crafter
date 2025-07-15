@@ -16,11 +16,11 @@ Configure these secrets in your GitHub repository settings (`Settings > Secrets 
 - `AZURE_CREDENTIALS` - JSON object containing Azure service principal credentials
 
 ### GitHub App Configuration
-- `GITHUB_APP_ID` - Your GitHub App ID
-- `GITHUB_PRIVATE_KEY` - Your GitHub App private key (PEM format)
-- `GITHUB_WEBHOOK_SECRET` - Secret for webhook verification
-- `GITHUB_CLIENT_ID` - GitHub App client ID
-- `GITHUB_CLIENT_SECRET` - GitHub App client secret
+- `REPOCRAFTER_APP_ID` - Your GitHub App ID
+- `REPOCRAFTER_PRIVATE_KEY` - Your GitHub App private key (PEM format)
+- `REPOCRAFTER_WEBHOOK_SECRET` - Secret for webhook verification
+- `REPOCRAFTER_CLIENT_ID` - GitHub App client ID
+- `REPOCRAFTER_CLIENT_SECRET` - GitHub App client secret
 
 ### Application Configuration
 - `REPO_CRAFTER_API_KEY` - API key for repository creation endpoints

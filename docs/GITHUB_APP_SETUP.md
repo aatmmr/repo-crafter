@@ -23,7 +23,7 @@ This guide covers creating and configuring a GitHub App at the organization leve
 
 3. **Webhook Configuration**
    - **Webhook URL**: `https://{org-name}-repo-crafter.azurewebsites.net/api/github/webhooks`
-   - **Webhook secret**: Generate with `openssl rand -hex 32` (save as `GITHUB_WEBHOOK_SECRET`)
+   - **Webhook secret**: Generate with `openssl rand -hex 32` (save as `REPOCRAFTER_WEBHOOK_SECRET`)
    - **SSL verification**: Enabled
 
 4. **Organization Permissions**
@@ -40,7 +40,7 @@ This guide covers creating and configuring a GitHub App at the organization leve
 7. **Where can this GitHub App be installed?**
    - Select "Only on this account" for organization-specific use
 
-8. **Create the app** and save the **App ID** (use as `GITHUB_APP_ID`)
+8. **Create the app** and save the **App ID** (use as `REPOCRAFTER_APP_ID`)
 
 ## Step 2: Configure App Authentication
 
@@ -48,11 +48,11 @@ This guide covers creating and configuring a GitHub App at the organization leve
    - In GitHub App settings, scroll to "Private keys"
    - Click "Generate a private key"
    - Download the `.pem` file
-   - Store entire file content as `GITHUB_PRIVATE_KEY` secret
+   - Store entire file content as `REPOCRAFTER_PRIVATE_KEY` secret
 
 2. **Client Credentials**
-   - Copy **Client ID** (use as `GITHUB_CLIENT_ID`)
-   - Generate **Client Secret** (use as `GITHUB_CLIENT_SECRET`)
+   - Copy **Client ID** (use as `REPOCRAFTER_CLIENT_ID`)
+   - Generate **Client Secret** (use as `REPOCRAFTER_CLIENT_SECRET`)
 
 ## Step 3: Install App on Organization
 
@@ -72,11 +72,11 @@ Add these secrets to your organization's repo-crafter repository:
 
 ### GitHub App Configuration
 ```
-GITHUB_APP_ID          - App ID from Step 1
-GITHUB_PRIVATE_KEY     - Private key content (.pem file)
-GITHUB_WEBHOOK_SECRET  - Webhook verification secret
-GITHUB_CLIENT_ID       - Client ID from App settings
-GITHUB_CLIENT_SECRET   - Generated client secret
+REPOCRAFTER_APP_ID          - App ID from Step 1
+REPOCRAFTER_PRIVATE_KEY     - Private key content (.pem file)
+REPOCRAFTER_WEBHOOK_SECRET  - Webhook verification secret
+REPOCRAFTER_CLIENT_ID       - Client ID from App settings
+REPOCRAFTER_CLIENT_SECRET   - Generated client secret
 ```
 
 ### Application Configuration
