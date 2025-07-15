@@ -7,7 +7,7 @@ variable "environment" {
 variable "location" {
   description = "Azure region"
   type        = string
-  default     = "Germany North"
+  default     = "Germany West Central"
 }
 
 variable "azure_owner" {
