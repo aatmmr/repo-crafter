@@ -117,8 +117,34 @@ resource "azurerm_resource_group" "repo_crafter" {
   }
 }
 
+# Data source for existing App Service Plan
+# Only used if resource group is existing
+
+data "azurerm_service_plan" "existing" {
+  count               = var.use_existing_rg ? 1 : 0
+  name                = "asp-repo-crafter-${var.environment}"
+  resource_group_name = local.resource_group_name
+}
+
+# Create App Service Plan only if not using existing one
+resource "azurerm_service_plan" "repo_crafter" {
+  count               = var.use_existing_rg ? 0 : 1
+  name                = "asp-repo-crafter-${var.environment}"
+  resource_group_name = local.resource_group_name
+  location            = local.resource_group_location
+  os_type             = "Linux"
+  sku_name            = var.app_service_sku
+  tags = {
+    Environment = var.environment
+    Project     = "repo-crafter"
+    ManagedBy   = var.azure_owner
+  }
+}
+
 # Local values to reference the correct resource group
 locals {
   resource_group_name = var.use_existing_rg ? data.azurerm_resource_group.existing[0].name : azurerm_resource_group.repo_crafter[0].name
   resource_group_location = var.use_existing_rg ? data.azurerm_resource_group.existing[0].location : azurerm_resource_group.repo_crafter[0].location
+  app_service_plan_id   = var.use_existing_rg ? data.azurerm_service_plan.existing[0].id : azurerm_service_plan.repo_crafter[0].id
+  app_service_plan_name = var.use_existing_rg ? data.azurerm_service_plan.existing[0].name : azurerm_service_plan.repo_crafter[0].name
 }

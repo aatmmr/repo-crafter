@@ -42,8 +42,8 @@ resource "azurerm_service_plan" "repo_crafter" {
 resource "azurerm_linux_web_app" "repo_crafter" {
   name                = "app-repo-crafter-${var.environment}-${random_string.suffix.result}"
   resource_group_name = local.resource_group_name
-  location           = local.resource_group_location
-  service_plan_id    = azurerm_service_plan.repo_crafter.id
+  location            = local.resource_group_location
+  service_plan_id     = local.app_service_plan_id
   
   site_config {
     always_on = var.environment == "production" ? true : false
